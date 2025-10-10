@@ -36,8 +36,8 @@ les professeurs peuvent modifier leur plan de cours (menant à une modification 
 ### Acteurs
 
 - **Étudiants** : principaux utilisateurs (tous cycles confondus).
-- **TGDE** (Techniciens en gestion de dossiers étudiants) : consultation des dossiers, validation, possibilité de bypasser des prérequis.
-- **Professeurs / chargés de cours** : indirectement concernés, leurs plans de cours et méthodes d’enseignement influencent les données.
+- **TGDE** (Techniciens en gestion de dossiers étudiants) : Acteurs directs du système. Ils peuvent faire une consultation des dossiers, validation des inscriptions, possibilité de bypasser des prérequis.
+- **Professeurs / chargés de cours** : indirectement concernés, ils ne consultent pas directement l'application, mais leurs plans de cours et méthodes d’enseignement influencent les données.
 - **Systèmes externes** :
   - *Planifium* : source des données officielles (horaires, prérequis).
   - *Discord* : source des avis étudiants
