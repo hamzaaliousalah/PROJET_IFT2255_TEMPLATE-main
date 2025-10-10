@@ -14,10 +14,10 @@ title: Vue d'ensemble
 
 ## Équipe
 
-- **Aya Dair** (20280089 -@Aya)
+- **Aya Dair**
 - **Celina Sid Abdelkaker** (20279666 – @Sid)
-- **Gabriel Viana** (20283304 - @Gabriel_Viana) 
-- **Hamza Ali Ousalah** (20249230 - @Hemzaaa)
+- **Gabriel Viana** (20283304)
+- **Hamza Ali Ousalah** (20249230)
 
 ## Description du projet
 
