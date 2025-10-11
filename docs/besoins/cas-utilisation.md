@@ -107,3 +107,5 @@ Ils permettent de valider que les fonctionnalités répondent bien aux besoins e
 **Déclencheur** : L’étudiant consulte la section « Recommandations ».
 **Dépendances** : Données académiques, historique de cours suivis, préférences.
 **But** : Aider l’étudiant à découvrir des cours adaptés à son profil.
+
+**Scénario nominal :**
