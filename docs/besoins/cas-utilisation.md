@@ -62,6 +62,13 @@ Ils permettent de valider que les fonctionnalités répondent bien aux besoins e
 3. Le système affiche un tableau/graphique comparatif.
 4. L’étudiant analyse et peut sauvegarder/partager la comparaison.
 
+
+**Scénario alternatif :**
+1a. Moins de deux cours sélectionnés → 1a.1. Le bouton « Comparer » reste désactivé ;
+le système invite à ajouter un cours.
+
+
+
 ---
 
 ### CU03 – Consulter la fiche d’un cours
@@ -78,6 +85,9 @@ Ils permettent de valider que les fonctionnalités répondent bien aux besoins e
 2. Il clique sur un cours.
 3. Le système affiche les données officielles, académiques et avis étudiants.
 4. L’étudiant peut ajouter le cours à sa liste ou à une comparaison.
+
+**Scénario alternatif :**
+3a. Résultats académiques indisponibles → 3a.1. Afficher « Non disponible pour cette période ».
 
 ---
 
@@ -97,6 +107,8 @@ Ils permettent de valider que les fonctionnalités répondent bien aux besoins e
 4. Le système valide et enregistre.
 5. Les modifications apparaissent immédiatement.
 
+
+
 ---
 
 ### CU05 – Recommandations personnalisées
@@ -107,3 +119,14 @@ Ils permettent de valider que les fonctionnalités répondent bien aux besoins e
 **Déclencheur** : L’étudiant consulte la section « Recommandations ».
 **Dépendances** : Données académiques, historique de cours suivis, préférences.
 **But** : Aider l’étudiant à découvrir des cours adaptés à son profil.
+
+**Scénario nominal :**
+1. L’étudiant ouvre « Recommandations ».
+2. Le système lit le profil et s'il est dispo, l’historique récent.
+3. Le système sélectionne des cours correspondant aux préférences et contraintes.
+4. Le système génère pour chaque cours une courte justification.
+5. Le système affiche la liste triée par pertinence avec accès à « Voir détails » et « Ajouter à la comparaison ».
+
+**Scénario alternatif :**
+(1-5)b. Perte réseau. → (1-5)b.1. Notification + « Réessayer » ; 
+si possible, suggestions hors-ligne basées sur l’historique local.
