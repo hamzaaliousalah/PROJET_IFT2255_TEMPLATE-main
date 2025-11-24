@@ -1,6 +1,6 @@
 
 const API_URL = 'http://localhost:3000';
-
+/////
 async function loadUsers() {
     try {
         const response = await fetch(`${API_URL}/students`);
@@ -60,12 +60,26 @@ async function loadCourse() {
 function displayCourse(course) {
     const container = document.getElementById('course-info');
 
+    let commentsHtml = '';
+    if (course.comments && course.comments.length > 0) {
+        commentsHtml = '<div class="comments-section">';
+        commentsHtml += '<h3>section commentaires des étudiants</h3>';
+        course.comments.forEach(c => {
+            commentsHtml += `
+                <div class="comment">
+                    ${c.author}: ${c.message}
+                </div>
+            `;
+        });
+        commentsHtml += '</div>';
+    }
+
     container.innerHTML = `
         <div class="course-card">
             <h3>${course.name || course.id}</h3>
-            <p>cours offer: ${course.id}</p>
+            <p>Sigle: ${course.id}</p>
             <p>Description: ${course.description || 'Pas de description'}</p>
-            <p>prerequis: ???</p>
+            ${commentsHtml}
         </div>
     `;
 }
@@ -115,7 +129,6 @@ function showSuccess(elementId, message) {
     setTimeout(() => successDiv.remove(), 3000);
 }
 
-
 window.addEventListener('load', () => {
-    loadUsers();
+    //loadUsers();
 });

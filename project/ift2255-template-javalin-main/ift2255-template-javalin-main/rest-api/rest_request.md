@@ -6,3 +6,7 @@ http://localhost:3000/students/20283304
 
 ### POST 1 etudiant
 http://localhost
+
+---
+
+Tests JUTILS
