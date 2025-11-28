@@ -1,5 +1,7 @@
 package com.diro.ift2255.service;
 
+import com.diro.ift2255.model.Comparaison;
+import com.diro.ift2255.model.ComparaisonResult;
 import com.diro.ift2255.model.Course;
 import com.diro.ift2255.util.HttpClientApi;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,5 +42,25 @@ public class CourseService {
         } catch (RuntimeException e) {
             return Optional.empty();
         }
+    }
+///////
+    public ComparaisonResult compareCourses(String courseIdA, String courseIdB) {
+        Optional<Course> courseAOpt = getCourseById(courseIdA);
+        Optional<Course> courseBOpt = getCourseById(courseIdB);
+
+        if (courseAOpt.isEmpty() || courseBOpt.isEmpty()) {
+            throw new IllegalArgumentException("Un ou les deux cours sont introuvables.");
+        }
+
+        Course courseA = courseAOpt.get();
+        Course courseB = courseBOpt.get();
+
+        Comparaison comparaison = new Comparaison(courseA, courseB);
+        return comparaison.buildResult();
+    }
+
+    public boolean validateCourses(String courseIdA, String courseIdB) {
+        return getCourseById(courseIdA).isPresent()
+            && getCourseById(courseIdB).isPresent();
     }
 }
