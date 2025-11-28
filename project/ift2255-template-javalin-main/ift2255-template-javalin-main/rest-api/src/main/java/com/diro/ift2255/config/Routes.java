@@ -38,6 +38,7 @@ package com.diro.ift2255.config;
 
 import com.diro.ift2255.controller.CourseController;
 import com.diro.ift2255.controller.StudentController;
+import com.diro.ift2255.controller.AvisController; ////////////// pr comments now en test
 import com.diro.ift2255.service.CourseService;
 import com.diro.ift2255.util.HttpClientApi;
 import io.javalin.Javalin;
@@ -53,8 +54,11 @@ public class Routes {
         registerStudentRoutes(app);
         registerCourseRoutes(app);
         registerCommentRoutes(app);
+        registerAvisRoutes(app);
         //maybe ajouter le truc avec les tgde / prof??
+
     }
+
 
     private static void registerStudentRoutes(Javalin app) {
         StudentController studentController = new StudentController();
@@ -148,5 +152,17 @@ public class Routes {
             List<Map<String, String>> courseComments = comments.getOrDefault(courseId, new ArrayList<>());
             ctx.json(courseComments);
         });
+    }
+
+
+    ///////////avis
+    private static void registerAvisRoutes(Javalin app) {
+
+        AvisController avisController = new AvisController();
+
+        app.get("/avis", avisController::getAll);
+        app.get("/avis/{courseId}", avisController::getByCourse);
+        app.get("/avis/{courseId}/stats", avisController::getStats);
+        app.post("/avis", avisController::create);
     }
 }
