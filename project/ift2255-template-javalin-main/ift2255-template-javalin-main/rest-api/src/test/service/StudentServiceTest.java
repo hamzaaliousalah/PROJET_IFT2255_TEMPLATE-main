@@ -72,7 +72,6 @@ class StudentServiceTest {
         assertFalse(eligible, "Gabriel ne devrait pas être éligible");
     }
 
-    // Test pour le cas trivial : pas de prérequis
     @Test
     void testIsEligible_emptyPrerequisites() {
         StudentService service = new StudentService();
@@ -84,6 +83,7 @@ class StudentServiceTest {
         assertTrue(eligible, "Sans prérequis, tout le monde est éligible");
     }
 }
+
 
 
 
