@@ -30,7 +30,7 @@ class ComparaisonServiceTest {
     }
 
     @Test
-    void compareCourses_whenBothCoursesExist_returnsResult() {
+    void testeCompareCourses_whenBothCoursesExist() {
         // ARRANGE
         // On define 2 courses differents
         String idA = "IFT1015";
@@ -55,7 +55,7 @@ class ComparaisonServiceTest {
     }
 
     @Test
-    void compareCourses_whenOneCourseIsMissing_throwsIllegalArgumentException() {
+    void testeCompareCourses_whenOneCourseDontExist() {
 
         // --- ARRANGE ---
         String idA = "IFT1015";
@@ -79,6 +79,20 @@ class ComparaisonServiceTest {
         // Vérifie les appels au service
         verify(courseService).getCourseById(idA);
         verify(courseService).getCourseById(idB);
+    }
+    @Test
+    void testValidateCourses_whenBothCoursesExist() {
+
+        // --- ARRANGE ---
+        when(courseService.getCourseById("A")).thenReturn(Optional.of(mock(Course.class)));
+        when(courseService.getCourseById("B")).thenReturn(Optional.of(mock(Course.class)));
+
+        // --- ACT ---
+        boolean result = comparaisonService.validateCourses("A", "B");
+
+        // --- ASSERT ---
+        // Les deux courses existent 
+        assertTrue(result, "Les deux cours existent, on s'attend à true");
     }
 
 
