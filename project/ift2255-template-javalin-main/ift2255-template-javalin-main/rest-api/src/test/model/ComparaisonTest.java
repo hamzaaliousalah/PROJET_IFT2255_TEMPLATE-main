@@ -37,6 +37,24 @@ public class ComparaisonTest {
 
     
      // TEST: getCommonSessions(), trouver l'intersection, donc la session commune dans laquelle deux cours se donne
+    @Test
+    void testGetCommonSessions_simpleIntersection() {
+        //Arrange
+        Course courseA = new Course();
+        courseA.setId("IFT2125");
+        courseA.setSessions(Arrays.asList("H25"));
+
+        Course courseB = new Course();
+        courseB.setId("IFT2015");
+        courseB.setSessions(Arrays.asList("H25", "A26"));
+        Comparaison comparaison = new Comparaison(courseA, courseB);
+
+        //Act
+        List<String> common = comparaison.getCommonSessions();
+        //Assert
+        assertEquals(1, common.size(), "Il devrait y avoir exactement 1 session commune");
+        assertTrue(common.contains("H25"), "La session commune devrait être H25");
+    }
     
 
     
