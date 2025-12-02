@@ -35,4 +35,10 @@ public class ComparaisonTest {
                 "La différence de crédits entre 0 et 3 devrait être 3");
     }
 
+    
+     // TEST: getCommonSessions(), trouver l'intersection, donc les sessions communes dans lesquelles deux cours se donne
+    
+
+    
+
 }
