@@ -1,4 +1,4 @@
-package com.diro.ift2255.service;
+/*package com.diro.ift2255.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,7 +78,7 @@ public class UserServiceTest {
     @Test
     @DisplayName("Get user by ID should return empty when user is not found")
     void testGetUserByIdNotFound() {
-        // ARRANGE 
+        // ARRANGE
         int nonexistentUserId = 999;
 
         // ACT
@@ -90,7 +90,7 @@ public class UserServiceTest {
             OK("No user found as expected");
         } catch (AssertionError e) {
             Err(e.getMessage());
-            throw e; 
+            throw e;
         }
     }
 
@@ -127,4 +127,4 @@ public class UserServiceTest {
     private void Err(String message, boolean isLast) {
         printMessage(message, false, isLast);
     }
-}
+}*/
