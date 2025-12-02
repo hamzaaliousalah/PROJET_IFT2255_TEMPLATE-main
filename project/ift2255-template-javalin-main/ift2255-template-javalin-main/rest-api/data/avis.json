@@ -166,4 +166,28 @@
   "rating" : 4,
   "comment" : "Test comment",
   "courseId" : "TEST1234"
+}, {
+  "difficulty" : 1,
+  "charge" : 1,
+  "rating" : 5,
+  "comment" : "Super cours!",
+  "courseId" : "UNIQUE_1764717775029"
+}, {
+  "difficulty" : 3,
+  "charge" : 2,
+  "rating" : 4,
+  "comment" : "Test comment",
+  "courseId" : "TEST1234"
+}, {
+  "difficulty" : 1,
+  "charge" : 1,
+  "rating" : 5,
+  "comment" : "Super cours!",
+  "courseId" : "UNIQUE_1764717929600"
+}, {
+  "difficulty" : 3,
+  "charge" : 2,
+  "rating" : 4,
+  "comment" : "Test comment",
+  "courseId" : "TEST1234"
 } ]
