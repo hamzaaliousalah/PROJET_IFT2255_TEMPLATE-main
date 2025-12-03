@@ -31,6 +31,8 @@ Assurez-vous d’avoir les outils suivants installés :
 - Entrer un matricule (ex : 20279666)
 - Tester
 
+  ![alt text](img_planifiumapp.png)
+
 ## Pour lancer les tests
 
 - Se déplacer jusqu'au répertoire `PROJET_IFT2255_TEMPLATE-main/project/ift2255-template-javalin-main/ift2255-template-javalin-main/rest-api`
