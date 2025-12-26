@@ -108,7 +108,7 @@ async function loadCourse() {
     }
 }
 
-async function loadCourseExact() {
+/*async function loadCourseExact() {
     const courseId = document.getElementById('courseId').value.trim().toUpperCase();
 
     if (!courseId) {
@@ -126,7 +126,7 @@ async function loadCourseExact() {
     } catch (error) {
         showError('course-info', error.message);
     }
-} 
+} */
 async function loadCourseExact() {
     const courseId = document.getElementById('courseId').value.trim().toUpperCase();
 
@@ -180,19 +180,87 @@ async function loadCourseByKeyword() {
 }
 
 
-function displayCourses(courses) {
+function displayCourse(course) {
     const container = document.getElementById('course-info');
-    container.innerHTML = "";
 
-    courses.forEach(course => {
-        container.innerHTML += `
-            <div class="course-card">
-                <h3>${course.id} - ${course.name}</h3>
-                <p><b>Crédits:</b> ${course.credits}</p>
-                <p>${course.description || ""}</p>
+    let professors = [];
+    if (course.schedules?.[0]?.sections) {
+        course.schedules[0].sections.forEach(section => {
+            if (section.teachers) {
+                section.teachers.forEach(teacher => {
+                    if (!professors.includes(teacher)) {
+                        professors.push(teacher);
+                    }
+                });
+            }
+        });
+    }
+    let professorText = professors.length > 0 ? professors.join('; ') : "Non assigné";
+
+    let prereqs = "Aucun";
+    if (course.prerequisite_courses && course.prerequisite_courses.length > 0) {
+        prereqs = course.prerequisite_courses.join(', ');
+    }
+
+    let commentsHtml = '';
+    if (course.comments && course.comments.length > 0) {
+        commentsHtml = '<div class="comments-section">';
+        commentsHtml += '<h3>Commentaires des étudiants</h3>';
+        course.comments.forEach(c => {
+            commentsHtml += `
+                <div class="comment">
+                    <p><b>${c.author}</b></p>
+                    <p>${c.message || ''}</p>
+                </div>
+            `;
+        });
+        commentsHtml += '</div>';
+    }
+
+    let eligibilityHTML = '';
+    if (course.eligibility) {
+        if (course.eligibility.eligible) {
+            eligibilityHTML = '<p class="eligible"> Vous aves tt les prérequis a ce cours</p>';
+        } else {
+            let missing = course.eligibility.prerequis.filter(p => !course.eligibility.completedCourses.includes(p));
+            eligibilityHTML = `<p class="NON-eligible"> Non éligible, prérequis manquants: ${missing.join(', ')}</p>`;
+        }
+    }
+
+    ////
+    let academicHTML = '';
+    const stats = coursAcademiques[course.id.toUpperCase()];
+    if (stats) {
+        academicHTML = `
+            <div class="academic-stats">
+                <h4>Resultats moyens obtenus</h4>
+                <p><b>Moyenne:</b> ${stats.moyenne}</p>
+                <p><b>Score:</b> ${stats.score}</p>
+                <p><b>Nbr Participants:</b> ${stats.participants} étudiants</p>
+                <p><b>Trimestres:</b> ${stats.trimestres}</p>
             </div>
         `;
-    });
+    } else {
+        academicHTML = `
+            <div class="academic-stats">
+                <p class="error">Aucune donnée académique disponible pour ce cours</p>
+            </div>
+        `;
+    }
+
+    container.innerHTML = `
+        <div class="course-card">
+            <h3>${course.name || course.id}</h3>
+            <p><b>Sigle</b>: ${course.id}</p>
+            <p><b>Crédits</b>: ${course.credits || 3}</p>
+            <p><b>Professeur(s)</b>: ${professorText}</p>
+            <p><b>Prérequis</b>: ${prereqs}</p>
+            ${eligibilityHTML}
+            ${academicHTML}
+            <p><b>Description</b>: ${course.description || 'Pas de description dispo'}</p>
+            ${commentsHtml}
+        </div>
+    `;
 }
 
 
