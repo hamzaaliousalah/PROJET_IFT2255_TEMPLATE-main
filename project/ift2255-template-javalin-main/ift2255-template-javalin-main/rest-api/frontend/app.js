@@ -1,5 +1,30 @@
 const API_URL = 'http://localhost:3000';
 
+let coursAcademiques = {}; //on doit faire ca first sinn ca lag
+
+async function loadCSV() {
+    const response = await fetch('../data/historique_cours_prog_117510.csv');
+    const text = await response.text();
+
+    const lignes = text.split('\n');
+
+    //header vrm pas besoin de ca
+    for (let i = 1; i < lignes.length; i++) {
+        const cols = lignes[i].split(',');
+
+        if (cols[0]) {
+            const sigle = cols[0].trim().toUpperCase();
+            coursAcademiques[sigle] = {
+                nom: cols[1],
+                moyenne: cols[2],
+                score: parseFloat(cols[3]),
+                participants: parseInt(cols[4]),
+                trimestres: parseInt(cols[5])
+            };
+        }
+    }
+}
+
 /////
 async function loadUsers() {
     try {
@@ -101,7 +126,7 @@ async function loadCourseExact() {
     } catch (error) {
         showError('course-info', error.message);
     }
-}*/
+} 
 async function loadCourseExact() {
     const courseId = document.getElementById('courseId').value.trim().toUpperCase();
 
