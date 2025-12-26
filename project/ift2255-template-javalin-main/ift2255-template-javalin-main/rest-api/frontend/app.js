@@ -101,6 +101,25 @@ async function loadCourseExact() {
     } catch (error) {
         showError('course-info', error.message);
     }
+}*/
+async function loadCourseExact() {
+    const courseId = document.getElementById('courseId').value.trim().toUpperCase();
+
+    if (!courseId) {
+        showError('course-info', 'Veuillez entrer un sigle de cours');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/courses/${courseId}`);
+        if (!response.ok) throw new Error('Cours non trouvé');
+
+        const course = await response.json();
+        displayCourse(course);
+
+    } catch (error) {
+        showError('course-info', error.message);
+    }
 }
 
 async function loadCourseByKeyword() {
