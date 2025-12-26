@@ -36,7 +36,7 @@ async function loadCSV() {
 
 /**
  * Charge la liste des étudiants depuis l’API
- * et déclenche leur affichage.
+ * et déclenche leur affichage
  * @async
  * @returns {Promise<void>}
  */
@@ -55,6 +55,11 @@ async function loadUsers() {
     }
 }
 
+
+/**
+ * Affiche la liste des étudiants dans l’interface
+ * @param {Array<Object>} students ->Liste des étudiants
+ */
 function displayUsers(students) {
     const container = document.getElementById('users-list');
 
@@ -73,13 +78,23 @@ function displayUsers(students) {
     `).join('');
 }
 
-
+/**
+ * Genere le code de trimestre à partir des sélecteurs (par ex, A25)
+ * @returns {string} Code du trimestre
+ */
 function getSemesterCode() {
     const term = document.getElementById("term")?.value || "a";
     const year = document.getElementById("year")?.value || "25";
     return `${term}${year}`;
 }
 
+/**
+ * Determine le type de recherche de cours 
+ * -exacte (sigle complet)
+ * -par mot clé
+ * @async
+ * @returns {Promise<void>}
+ */
 async function searchCourse() {
     const input = document.getElementById("courseId").value.trim().toUpperCase();
 
@@ -96,6 +111,12 @@ async function searchCourse() {
     }
 }
 
+/**
+ * Charge un cours précis pour un trimestre donné
+ * et verifie l’éligibilité de l’etudiant
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadCourse() {
     const courseId = document.getElementById("courseId").value.trim();
     if (!courseId) {
@@ -193,6 +214,12 @@ async function loadCourseByKeyword() {
     }
 }
 
+/**
+ * Affiche les informations détaillées d’un cours:
+ * professeurs, prérequis, éligibilité, statistiques académiques
+ * et commentaires étudiants
+ * @param {Object} course Objet cours retourné par l’API
+ */
 
 function displayCourse(course) {
     const container = document.getElementById('course-info');
@@ -277,7 +304,12 @@ function displayCourse(course) {
     `;
 }
 
-
+/**
+ * Vérifie si l’etudiant connecté est eligible à un cours donné
+ * @param {string} courseId - Sigle du cours
+ * @returns {Promise<Object|null>} Resultat d’eligibilité ou null
+ * git
+ */
 async function checkEligibility(courseId) {
     console.log("checkEligibility appelé avec:", courseId, "matricule:", matricule);
 
