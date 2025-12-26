@@ -214,6 +214,22 @@ async function loadCourseByKeyword() {
     }
 }
 
+function displayCourses(courses) {
+    const container = document.getElementById('course-info');
+    container.innerHTML = "";
+
+    courses.forEach(course => {
+        container.innerHTML += `
+            <div class="course-card">
+                <h3>${course.id} - ${course.name}</h3>
+                <p><b>Crédits:</b> ${course.credits}</p>
+                <p>${course.description || ""}</p>
+            </div>
+        `;
+    });
+}
+
+
 /**
  * Affiche les informations détaillées d’un cours:
  * professeurs, prérequis, éligibilité, statistiques académiques
