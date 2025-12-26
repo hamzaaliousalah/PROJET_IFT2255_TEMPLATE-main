@@ -191,6 +191,17 @@ form {
   overflow-wrap: anywhere;
 }
 
+
+.eligible {
+    color: green;
+    font-weight: bold;
+}
+
+.NON-eligible {
+    color: red;
+    font-weight: bold;
+}
+
 @media (max-width: 900px){
   .avis-section{
     flex-direction: column;

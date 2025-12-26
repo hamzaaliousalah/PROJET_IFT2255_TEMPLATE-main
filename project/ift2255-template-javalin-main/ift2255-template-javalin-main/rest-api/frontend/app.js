@@ -1,5 +1,5 @@
-
 const API_URL = 'http://localhost:3000';
+
 /////
 async function loadUsers() {
     try {
@@ -34,39 +34,166 @@ function displayUsers(students) {
     `).join('');
 }
 
+
+function getSemesterCode() {
+    const term = document.getElementById("term")?.value || "a";
+    const year = document.getElementById("year")?.value || "25";
+    return `${term}${year}`;
+}
+
+async function searchCourse() {
+    const input = document.getElementById("courseId").value.trim().toUpperCase();
+
+    if (!input) {
+        showError("course-info", "Veuillez entrer un sigle de cours");
+        return;
+    }
+
+
+    if (input.length >= 7) { //si on vs pr cherche le cours au complet
+        loadCourse();
+    } else {
+        loadCourseByKeyword(); //sinn fct hamza
+    }
+}
+
 async function loadCourse() {
-    const courseId = document.getElementById('courseId').value.trim();
+    const courseId = document.getElementById("courseId").value.trim();
+    if (!courseId) {
+        showError("course-info", "Veuillez entrer un sigle de cours");
+        return;
+    }
+
+    const semester = getSemesterCode();
+
+    try {
+
+        const res = await fetch(
+            `${API_URL}/courses/${encodeURIComponent(courseId)}?schedule_semester=${encodeURIComponent(semester)}`
+        );
+
+        if (!res.ok) throw new Error("Cours non trouvé");
+
+        const course = await res.json();
+        const eligibility = await checkEligibility(courseId); ///RAjoute pour regarder si le cours on peut meme penser le prendre
+        course.eligibility = eligibility;
+        displayCourse(course);
+    } catch (e) {
+        showError("course-info", e.message);
+    }
+}
+
+async function loadCourseExact() {
+    const courseId = document.getElementById('courseId').value.trim().toUpperCase();
 
     if (!courseId) {
-        showError('course-info', 'Veuillez entrer un ID de cours');
+        showError('course-info', 'Veuillez entrer un sigle de cours');
         return;
     }
 
     try {
-        const response = await fetch(`${API_URL}/courses/${courseId}?include_schedule=true&schedule_semester=a25`);
-
-        if (!response.ok) {
-            throw new Error('Cours non trouve');
-        }
+        const response = await fetch(`${API_URL}/courses/${courseId}`);
+        if (!response.ok) throw new Error('Cours non trouvé');
 
         const course = await response.json();
-        console.log(course)
         displayCourse(course);
+
     } catch (error) {
         showError('course-info', error.message);
     }
 }
 
+async function loadCourseByKeyword() {
+    const query = document.getElementById('courseId').value.trim().toUpperCase();
+
+    if (!query) {
+        showError('course-info', 'Veuillez entrer un sigle ou un mot-clé');
+        return;
+    }
+
+    try {
+        // On récupère tous les cours et on filtre côté front
+        const response = await fetch(`${API_URL}/courses`);
+        if (!response.ok) throw new Error('Impossible de charger les cours');
+
+        const allCourses = await response.json();
+
+        const filteredCourses = allCourses.filter(c =>
+            c.id.toUpperCase().includes(query) ||
+            (c.name && c.name.toUpperCase().includes(query))
+        );
+
+        if (filteredCourses.length === 0) {
+            showError('course-info', 'Aucun cours trouvé');
+            return;
+        }
+
+        displayCourses(filteredCourses);
+
+    } catch (error) {
+        showError('course-info', error.message);
+    }
+}
+
+
+function displayCourses(courses) {
+    const container = document.getElementById('course-info');
+    container.innerHTML = "";
+
+    courses.forEach(course => {
+        container.innerHTML += `
+            <div class="course-card">
+                <h3>${course.id} - ${course.name}</h3>
+                <p><b>Crédits:</b> ${course.credits}</p>
+                <p>${course.description || ""}</p>
+            </div>
+        `;
+    });
+}
+
+
+async function checkEligibility(courseId) {
+    console.log("checkEligibility appelé avec:", courseId, "matricule:", matricule);
+
+    if (!matricule || !courseId) {
+        console.log("matricule ou courseId manquant");
+        return null;
+    }
+
+    try {
+        const url = `${API_URL}/students/${matricule}/eligibility?courseId=${courseId}`;
+        console.log("URL appelée:", url);
+
+        const res = await fetch(url);
+        console.log("Réponse status:", res.status);
+
+        if (!res.ok) {
+            console.log("Réponse non-ok");
+            return null;
+        }
+
+        const data = await res.json();
+        console.log("Data reçue:", data);
+        return data;
+    } catch (e) {
+        console.log("Erreur:", e);
+        return null;
+    }
+}
+
+/**
+ * Affiche les infos dun cours dans lr container
+ * @param {Object} course - L'objet course getted by l'api
+ */
 function displayCourse(course) {
     const container = document.getElementById('course-info');
 
+    //ICI ON RETIRE
     let professors = [];
     if (course.schedules?.[0]?.sections) {
         course.schedules[0].sections.forEach(section => {
-
             if (section.teachers) {
                 section.teachers.forEach(teacher => {
-
                     if (!professors.includes(teacher)) {
                         professors.push(teacher);
                     }
@@ -74,46 +201,20 @@ function displayCourse(course) {
             }
         });
     }
-    let professorText = professors.length > 0 ? professors.join('; ') : "Non assigné";  //mdr easy shit, juste cnocatener par ; each professor, sinn juste write nn assigned
+    let professorText = professors.length > 0 ? professors.join('; ') : "Non assigné";
+
 
     let prereqs = "Aucun";
     if (course.prerequisite_courses && course.prerequisite_courses.length > 0) {
         prereqs = course.prerequisite_courses.join(', ');
     }
 
+    //section des commentaires
     let commentsHtml = '';
-    /*if (course.comments && course.comments.length > 0) {
+    if (course.comments && course.comments.length > 0) {
         commentsHtml = '<div class="comments-section">';
         commentsHtml += '<h3>Commentaires des étudiants</h3>';
         course.comments.forEach(c => {
-            commentsHtml += `
-                <div class="comment">
-                    ${c.author}: ${c.message}
-                </div>
-            `;
-        });
-        commentsHtml += '</div>';
-    } */
-   if (course.comments && course.comments.length > 0) {
-        commentsHtml = '<div class="comments-section">';
-        commentsHtml += '<h3>Commentaires des étudiants</h3>';
-        course.comments.forEach(c => {
-
-            /* VERSION AVEC SENTIMENT
-            let sentimentEmoji = '';
-            if (c.sentiment === 'positif') sentimentEmoji = '++';
-            else if (c.sentiment === 'negatif') sentimentEmoji = '--';
-            else sentimentEmoji = '+/-';
-
-            commentsHtml += `
-                <div class="comment">
-                    <p><b>${c.author}</b> ${sentimentEmoji}</p>
-                    <p>${c.message || ''}</p>
-                </div>
-            `;
-            */
-
-            // VERSION SANS LES SENTIMENTS
             commentsHtml += `
                 <div class="comment">
                     <p><b>${c.author}</b></p>
@@ -124,6 +225,17 @@ function displayCourse(course) {
         commentsHtml += '</div>';
     }
 
+    //////////////////////////////////
+
+    let eligibilityHTML = '';
+    if (course.eligibility) {
+        if (course.eligibility.eligible) {
+            eligibilityHTML = '<p class="eligible"> Vous aves tt les prérequis a ce cours</p>';
+        } else {
+            let missing = course.eligibility.prerequis.filter(p =>!course.eligibility.completedCourses.includes(p));
+            eligibilityHTML = `<p class="NON-eligible"> Non éligible, prérequis manquants: ${missing.join(', ')}</p>`;
+        }
+    }
     container.innerHTML = `
         <div class="course-card">
             <h3>${course.name || course.id}</h3>
@@ -131,70 +243,48 @@ function displayCourse(course) {
             <p><b>Crédits</b>: ${course.credits || 3}</p>
             <p><b>Professeur(s)</b>: ${professorText}</p>
             <p><b>Prérequis</b>: ${prereqs}</p>
+            ${eligibilityHTML}
             <p><b>Description</b>: ${course.description || 'Pas de description'}</p>
             ${commentsHtml}
         </div>
     `;
 }
 
-
-/*
-document.getElementById('createUserForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById('userName').value;
-    const matricule = document.getElementById('userMatricule').value;
-
-    try {
-        const response = await fetch(`${API_URL}/students`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name, matricule })
-        });
-
-        if (!response.ok) {
-            throw new Error('Erreur lors de la creation');
-        }
-
-        const newUser = await response.json();
-        showSuccess('createUserForm', `Utilisateur ${newUser.name} créé avec succès!`);
-
-        document.getElementById('createUserForm').reset();
-        loadUsers();
-    } catch (error) {
-        showError('createUserForm', error.message);
-    }
-});*/
-
-
+/**
+ * ERROR BOX, afficher une erreur au frontend
+ * @param {string} containerId -ID du container ou afficher l'erreur
+ * @param {string} message - le msg d'erreur
+ */
 function showError(containerId, message) {
     const container = document.getElementById(containerId);
-    container.innerHTML = `<div class="error"> ${message}</div>`;
+    container.innerHTML = `<div class="error">${message}</div>`;
 }
 
+/**
+ * Affiche un message de succès temporaire
+ * @param {string} elementId - L'ID de l'élément de référence
+ * @param {string} message - Le message de succès
+ */
 function showSuccess(elementId, message) {
     const element = document.getElementById(elementId);
     const successDiv = document.createElement('div');
     successDiv.className = 'success';
-    successDiv.textContent = ` ${message}`;
+    successDiv.textContent = message;
     element.parentNode.insertBefore(successDiv, element.nextSibling);
 
     setTimeout(() => successDiv.remove(), 3000);
 }
 
+///////////////////////AVIS LOGIC//////////
 
-
-///////////////////////AVIS LOGIC//////////33
-
-
-
+/**
+ * Charge les avis pour un cours spécifique
+ */
 async function loadAvis() {
     const courseId = document.getElementById('avis-search-coursebyid').value.trim();
 
     if (!courseId) {
-        showError('avis-list', 'Veuillez entrer un sigle de cour');
+        showError('avis-list', 'Veuillez entrer un sigle de cours');
         return;
     }
 
@@ -207,6 +297,9 @@ async function loadAvis() {
     }
 }
 
+/**
+ * Prepare stats a partir des avis pour un cours
+ */
 async function loadAvisStats() {
     const courseId = document.getElementById('avis-search-coursebyid').value.trim();
 
@@ -224,11 +317,15 @@ async function loadAvisStats() {
     }
 }
 
+/**
+ * Affiche la list des avis
+ * @param {Array} avisList - la list des avis
+ */
 function displayAvis(avisList) {
     const container = document.getElementById('avis-list');
 
     if (avisList.length === 0) {
-        container.innerHTML = '<p>aucun avis pour ce cours</p>';
+        container.innerHTML = '<p>Aucun avis pour ce cours</p>';
         return;
     }
 
@@ -238,18 +335,22 @@ function displayAvis(avisList) {
     for (let avis of avisList) {
         let commentaire = avis.comment || '';
 
-
         container.innerHTML += `
             <div class="comment">
-                <h4>review# ${count}</h4>
+                <h4>Review #${count}</h4>
                 <p><b>Note:</b> ${avis.rating}/5 | <b>Difficulté:</b> ${avis.difficulty}/5 | <b>Charge:</b> ${avis.charge}/5</p>
-                <p>--${commentaire}</p>
+                <p>${commentaire}</p>
             </div>
         `;
-        count = count+1
+        count++;
     }
 }
 
+/**
+ * Affiche les stats des avis
+ * @param {Object} stats - les stats quon calcule a chq souission d'avis
+ * @param {string} courseId - le ID du cours en question
+ */
 function displayAvisStats(stats, courseId) {
     const container = document.getElementById('avis-list');
 
@@ -264,9 +365,8 @@ function displayAvisStats(stats, courseId) {
     `;
 }
 
+//form pr les avis
 document.getElementById('createAvisForm').addEventListener('submit', async (e) => {
-
-
     e.preventDefault();
 
     const avis = {
@@ -288,21 +388,20 @@ document.getElementById('createAvisForm').addEventListener('submit', async (e) =
             throw new Error('Erreur lors de la création');
         }
 
-
+        //reseting form
         document.getElementById('avis-courseId').value = '';
         document.getElementById('avis-rating').value = '';
         document.getElementById('avis-difficulty').value = '';
         document.getElementById('avis-charge').value = '';
         document.getElementById('avis-comment').value = '';
-        //shit was annoying a chq fois reset me sort de la page en effacant uri tbrnk
-        document.getElementById('avis-form-result').innerHTML = '<div class="success">Avis enregistre</div>';
-        //document.getElementById('createAvisForm').reset();
+
+        document.getElementById('avis-form-result').innerHTML = '<div class="success">Avis enregistré</div>';
     } catch (error) {
         showError('avis-form-result', error.message);
     }
 });
 
-
+// Initialisation au chargement de la page
 window.addEventListener('load', () => {
-    //loadUsers();
+    // loadUsers(); // Décommentez si nécessaire
 });

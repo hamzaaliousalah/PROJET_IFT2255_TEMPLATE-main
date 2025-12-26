@@ -5,25 +5,21 @@ import com.diro.ift2255.model.Course;
 import com.diro.ift2255.service.CourseService;
 import com.diro.ift2255.util.ResponseUtil;
 import com.diro.ift2255.util.HttpClientApi;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
-
 public class CourseController {
-    // Service qui contient la logique métier pour la manipulation des cours et la communication avec les services externes
     private final CourseService service;
 
     public CourseController(CourseService service) {
         this.service = service;
     }
 
-    /**
-     * Récupère la liste de tous les cours.
-     * @param ctx Contexte Javalin représentant la requête et la réponse HTTP
-     */
+
     public void getAllCourses(Context ctx) {
         Map<String, String> queryParams = extractQueryParams(ctx);
 
@@ -31,11 +27,8 @@ public class CourseController {
         ctx.json(courses);
     }
 
-    /**
-     * Récupère un cours spécifique par son ID.
-     * @param ctx Contexte Javalin représentant la requête et la réponse HTTP
-     */
-    public void getCourseById(Context ctx) {
+
+    /*public void getCourseById(Context ctx) {
         String id = ctx.pathParam("id");
 
         if (!validateCourseId(id)) {
@@ -49,33 +42,142 @@ public class CourseController {
         } else {
             ctx.status(404).json(ResponseUtil.formatError("Aucun cours ne correspond à l'ID: " + id));
         }
-    }
-        public void getCourseWithSchedule(Context ctx) {
-            String id = ctx.pathParam("id");
-            String semester = ctx.queryParam("semester") != null ? ctx.queryParam("semester") : "A25";
+    }*/
 
-            try {
-                String url = "https://planifium-api.onrender.com/api/v1/courses/" + id + "?include_schedule=true&schedule_semester=" + semester;
-                var response = new HttpClientApi().get(java.net.URI.create(url));
-                ctx.contentType("application/json").result(response.getBody());
-            } catch (Exception e) {
-                ctx.status(500).json(Map.of("error", e.getMessage()));
-            }
+    public void getCourseById(Context ctx) {
+        String id = ctx.pathParam("id");
+
+        if (!validateCourseId(id)) {
+            ctx.status(400).json(ResponseUtil.formatError("Le paramètre id n'est pas valide."));
+            return;
         }
-    /**
-     * Vérifie que l'ID du cours est bien formé
-     * @param courseId L'ID du cours à valider
-     * @return Valeur booléeene indiquant si l'ID est valide
-     */
+
+        Optional<Course> course = service.getCourseById(id);
+        if (course.isEmpty()) {
+            ctx.status(404).json(ResponseUtil.formatError("Aucun cours ne correspond à l'ID: " + id));
+            return;
+        }
+
+        var c = course.get();
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", c.getId());
+        response.put("name", c.getName());
+        response.put("description", c.getDescription());
+        response.put("prerequis", c.getPrerequisites());
+        response.put("credits", c.getCredits());
+
+        try {
+            String semester = ctx.queryParam("schedule_semester");
+            if (semester == null || semester.isBlank()) {
+                semester = ctx.queryParam("semester");
+            }
+            if (semester == null || semester.isBlank()) {
+                semester = "A25";
+            }
+
+            String url = "https://planifium-api.onrender.com/api/v1/courses/" + id
+                    + "?include_schedule=true&schedule_semester=" + semester.toLowerCase();
+
+            var apiResponse = new HttpClientApi().get(java.net.URI.create(url));
+            Map datarecue = new com.fasterxml.jackson.databind.ObjectMapper().readValue(apiResponse.getBody(), Map.class);
+
+            response.put("schedules", datarecue.get("schedules"));
+            response.put("prerequisite_courses", datarecue.get("prerequisite_courses"));
+        } catch (Exception e) {
+            response.put("schedules", null);
+            response.put("prerequisite_courses", null);
+        }
+
+        ctx.json(response);
+    }
+
+    public void getCourseWithSchedule(Context ctx) {
+        String id = ctx.pathParam("id");
+
+        // Uniformisation: accepte schedule_semester OU semester
+        String semester = ctx.queryParam("schedule_semester");
+        if (semester == null || semester.isBlank()) {
+            semester = ctx.queryParam("semester");
+        }
+        if (semester == null || semester.isBlank()) {
+            semester = "A25"; // Valeur par défaut
+        }
+
+        try {
+            String url = "https://planifium-api.onrender.com/api/v1/courses/" + id
+                       + "?include_schedule=true&schedule_semester=" + semester.toLowerCase();
+            var response = new HttpClientApi().get(java.net.URI.create(url));
+            ctx.contentType("application/json").result(response.getBody());
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public void getCourseFull(Context ctx) {
+        String id = ctx.pathParam("id");
+
+
+        String semester = ctx.queryParam("schedule_semester");
+        if (semester == null || semester.isBlank()) {
+            semester = ctx.queryParam("semester");
+        }
+        if (semester == null || semester.isBlank()) {
+            semester = "A25";
+        }
+
+        try {
+            String url = "https://planifium-api.onrender.com/api/v1/courses/" + id
+                       + "?include_schedule=true&schedule_semester=" + semester.toLowerCase();
+            var response = new HttpClientApi().get(java.net.URI.create(url));
+
+            ctx.contentType("application/json");
+            ctx.result(response.getBody());
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+
+    public void getCourseScheduleOnly(Context ctx) {
+        String id = ctx.pathParam("id");
+
+
+        String semester = ctx.queryParam("schedule_semester");
+        if (semester == null || semester.isBlank()) {
+            semester = ctx.queryParam("semester");
+        }
+        if (semester == null || semester.isBlank()) {
+            semester = "A25";
+        }
+
+        try {
+            String url = "https://planifium-api.onrender.com/api/v1/courses/" + id
+                       + "?include_schedule=true&schedule_semester=" + semester.toLowerCase();
+
+            var response = new HttpClientApi().get(java.net.URI.create(url));
+
+
+            // la ref https://jenkov.com/tutorials/java-json/jackson-jsonnode.html
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response.getBody());
+
+            JsonNode schedulesNode = rootNode.get("schedules");
+            if (schedulesNode != null) {
+                ctx.json(schedulesNode);
+            } else {
+                ctx.json(Map.of("schedules", List.of()));
+            }
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+
     private boolean validateCourseId(String courseId) {
         return courseId != null && courseId.trim().length() >= 6;
     }
 
-    /**
-     * Récupère tous les paramètres de requête depuis l'URL et les met dans une Map
-     * @param ctx Contexte Javalin représentant la requête HTTP
-     * @return Map contenant les paramètres de requête et leurs valeurs
-     */
+
     private Map<String, String> extractQueryParams(Context ctx) {
         Map<String, String> queryParams = new HashMap<>();
 
@@ -86,5 +188,19 @@ public class CourseController {
         });
 
         return queryParams;
+    }
+
+    public void searchCourses(Context ctx) {
+
+        String sigle = ctx.queryParam("sigle");
+        String keyword = ctx.queryParam("keyword");
+
+        List<Course> courses = service.searchCourses(sigle, keyword);
+
+        if (courses.isEmpty()) {
+            ctx.status(404).json(Map.of("error", "Cours non trouvé"));
+        } else {
+            ctx.json(courses);
+        }
     }
 }

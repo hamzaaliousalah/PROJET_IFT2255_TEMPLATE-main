@@ -24,11 +24,15 @@
       function login(event){
           event.preventDefault();
           const input = document.getElementById('credentials').value;
-          const valides = ["20280089", "20279666", "20283304", "20249230"];
+          const valides = ["20280089", "20279666", "20283304", "20249230","12345678"];
 
-          if (valides.includes(input)) {
-              window.location.href = "index.html?matricule=" + input;
-          } else {
+          if (valides.includes(input)) { //if we ever find the matricule in the valid options
+            window.location.href = "index.html?matricule=" + input;
+          }
+          if (input == "12345"){
+            window.location.href = "index-admin.html?matricule=" + input;
+          }
+          else {
               alert("Matricule invalide");
           }
       }

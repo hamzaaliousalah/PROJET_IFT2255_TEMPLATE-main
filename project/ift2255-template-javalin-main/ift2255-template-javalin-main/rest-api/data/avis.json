@@ -190,4 +190,10 @@
   "rating" : 4,
   "comment" : "Test comment",
   "courseId" : "TEST1234"
+}, {
+  "courseId" : "IFT1065",
+  "rating" : 3,
+  "difficulty" : 4,
+  "charge" : 2,
+  "comment" : "C'est très mathémaique pour un cours d'info"
 } ]
