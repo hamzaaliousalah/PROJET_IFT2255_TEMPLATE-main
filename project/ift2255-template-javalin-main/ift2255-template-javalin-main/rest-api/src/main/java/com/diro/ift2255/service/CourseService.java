@@ -43,7 +43,7 @@ public class CourseService {
             return Optional.empty();
         }
     }
-///////
+
     public ComparaisonResult compareCourses(String courseIdA, String courseIdB) {
         Optional<Course> courseAOpt = getCourseById(courseIdA);
         Optional<Course> courseBOpt = getCourseById(courseIdB);
@@ -64,7 +64,7 @@ public class CourseService {
             && getCourseById(courseIdB).isPresent();
     }
 
-     public List<Course> searchCourses(String sigle, String keyword) {
+    public List<Course> searchCourses(String sigle, String keyword) {
 
         Map<String, String> params = new HashMap<>();
 

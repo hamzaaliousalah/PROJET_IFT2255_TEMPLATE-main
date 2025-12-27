@@ -13,9 +13,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>OUTIL DE CONSEILS PLANIFIUM</h1>
-        <div class="student-info">
+        <h1>OUTIL DE CONSEILS PLANIFI
+            
 
+            <!--= -->
             <!--= simple pr moi de load info en allant chercher par id et remplacer text-content-->
             <h4><b>Espace de</b> <span id="student-name"></span></h4>
             <p><b>Matricule:</b> <span id="student-matricule"></span></p>
@@ -136,6 +137,46 @@
 
         loadStudent()
 
+        const API_URL = 'http://localhost:3000';
+
+        async function searchCourse() {
+            const sigleOrId = document.getElementById('courseId').value.trim();
+            const term = document.getElementById('term').value;
+            const year = document.getElementById('year').value;
+
+            let sigle = sigleOrId.match(/^IFT/i) ? sigleOrId.toUpperCase() : '';
+            let keyword = sigleOrId && !sigle ? sigleOrId : '';
+
+            try {
+                const response = await fetch(`${API_URL}/courses/search?sigle=${sigle}&keyword=${keyword}`);
+                if (!response.ok) throw new Error("Cours non trouvé");
+                const courses = await response.json();
+
+                displayCourses(courses);
+            } catch (error) {
+                document.getElementById('course-info').innerHTML = `<p style="color:red">${error.message}</p>`;
+            }
+        }
+
+        function displayCourses(courses) {
+            const container = document.getElementById('course-info');
+            container.innerHTML = '';
+
+            if (courses.length === 0) {
+                container.innerHTML = '<p>Aucun cours trouvé</p>';
+                return;
+            }
+
+            courses.forEach(course => {
+                const div = document.createElement('div');
+                div.classList.add('course-card');
+                div.innerHTML = `
+                    <h3>${course.id} - ${course.name}</h3>
+                    <p>${course.description || 'Pas de description disponible'}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
         async function compareCourses() {
             const courseA = document.getElementById('compare-courseA').value.trim().toUpperCase();
             const courseB = document.getElementById('compare-courseB').value.trim().toUpperCase();

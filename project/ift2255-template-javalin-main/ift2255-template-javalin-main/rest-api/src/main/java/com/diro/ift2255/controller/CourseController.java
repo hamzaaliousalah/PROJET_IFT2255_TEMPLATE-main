@@ -1,16 +1,18 @@
 package com.diro.ift2255.controller;
 
-import io.javalin.http.Context;
-import com.diro.ift2255.model.Course;
-import com.diro.ift2255.service.CourseService;
-import com.diro.ift2255.util.ResponseUtil;
-import com.diro.ift2255.util.HttpClientApi;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import com.diro.ift2255.model.Course;
+import com.diro.ift2255.service.CourseService;
+import com.diro.ift2255.util.HttpClientApi;
+import com.diro.ift2255.util.ResponseUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.javalin.http.Context;
 
 public class CourseController {
     private final CourseService service;

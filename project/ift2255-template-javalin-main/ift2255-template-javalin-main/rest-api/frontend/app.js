@@ -2,6 +2,13 @@ const API_URL = 'http://localhost:3000';
 
 let coursAcademiques = {}; //on doit faire ca first sinn ca lag
 
+
+/**
+ * Charge les statistiques académiques des cours à partir d’un fichier CSV
+ * et les stocke dans la variable globale `coursAcademiques`.
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadCSV() {
     const response = await fetch('../data/historique_cours_prog_117510.csv');
     const text = await response.text();
@@ -25,9 +32,14 @@ async function loadCSV() {
     }
 }
 
-
-
 /////
+
+/**
+ * Charge la liste des étudiants depuis l’API
+ * et déclenche leur affichage
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadUsers() {
     try {
         const response = await fetch(`${API_URL}/students`);
@@ -43,6 +55,11 @@ async function loadUsers() {
     }
 }
 
+
+/**
+ * Affiche la liste des étudiants dans l’interface
+ * @param {Array<Object>} students ->Liste des étudiants
+ */
 function displayUsers(students) {
     const container = document.getElementById('users-list');
 
@@ -61,13 +78,23 @@ function displayUsers(students) {
     `).join('');
 }
 
-
+/**
+ * Genere le code de trimestre à partir des sélecteurs (par ex, A25)
+ * @returns {string} Code du trimestre
+ */
 function getSemesterCode() {
     const term = document.getElementById("term")?.value || "a";
     const year = document.getElementById("year")?.value || "25";
     return `${term}${year}`;
 }
 
+/**
+ * Determine le type de recherche de cours
+ * -exacte (sigle complet)
+ * -par mot clé
+ * @async
+ * @returns {Promise<void>}
+ */
 async function searchCourse() {
     const input = document.getElementById("courseId").value.trim().toUpperCase();
 
@@ -84,6 +111,12 @@ async function searchCourse() {
     }
 }
 
+/**
+ * Charge un cours précis pour un trimestre donné
+ * et verifie l’éligibilité de l’etudiant
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadCourse() {
     const courseId = document.getElementById("courseId").value.trim();
     if (!courseId) {
@@ -128,7 +161,7 @@ async function loadCourse() {
     } catch (error) {
         showError('course-info', error.message);
     }
-}*/
+} */
 async function loadCourseExact() {
     const courseId = document.getElementById('courseId').value.trim().toUpperCase();
 
@@ -266,6 +299,102 @@ function displayCourse(course) {
 }
 
 
+/**
+ * Affiche les informations détaillées d’un cours:
+ * professeurs, prérequis, éligibilité, statistiques académiques
+ * et commentaires étudiants
+ * @param {Object} course Objet cours retourné par l’API
+ */
+
+function displayCourse(course) {
+    const container = document.getElementById('course-info');
+
+    let professors = [];
+    if (course.schedules?.[0]?.sections) {
+        course.schedules[0].sections.forEach(section => {
+            if (section.teachers) {
+                section.teachers.forEach(teacher => {
+                    if (!professors.includes(teacher)) {
+                        professors.push(teacher);
+                    }
+                });
+            }
+        });
+    }
+    let professorText = professors.length > 0 ? professors.join('; ') : "Non assigné";
+
+    let prereqs = "Aucun";
+    if (course.prerequisite_courses && course.prerequisite_courses.length > 0) {
+        prereqs = course.prerequisite_courses.join(', ');
+    }
+
+    let commentsHtml = '';
+    if (course.comments && course.comments.length > 0) {
+        commentsHtml = '<div class="comments-section">';
+        commentsHtml += '<h3>Commentaires des étudiants</h3>';
+        course.comments.forEach(c => {
+            commentsHtml += `
+                <div class="comment">
+                    <p><b>${c.author}</b></p>
+                    <p>${c.message || ''}</p>
+                </div>
+            `;
+        });
+        commentsHtml += '</div>';
+    }
+
+    let eligibilityHTML = '';
+    if (course.eligibility) {
+        if (course.eligibility.eligible) {
+            eligibilityHTML = '<p class="eligible"> Vous aves tt les prérequis a ce cours</p>';
+        } else {
+            let missing = course.eligibility.prerequis.filter(p => !course.eligibility.completedCourses.includes(p));
+            eligibilityHTML = `<p class="NON-eligible"> Non éligible, prérequis manquants: ${missing.join(', ')}</p>`;
+        }
+    }
+
+    ////
+    let academicHTML = '';
+    const stats = coursAcademiques[course.id.toUpperCase()];
+    if (stats) {
+        academicHTML = `
+            <div class="academic-stats">
+                <h4>Resultats moyens obtenus</h4>
+                <p><b>Moyenne:</b> ${stats.moyenne}</p>
+                <p><b>Score:</b> ${stats.score}</p>
+                <p><b>Nbr Participants:</b> ${stats.participants} étudiants</p>
+                <p><b>Trimestres:</b> ${stats.trimestres}</p>
+            </div>
+        `;
+    } else {
+        academicHTML = `
+            <div class="academic-stats">
+                <p class="error">Aucune donnée académique disponible pour ce cours</p>
+            </div>
+        `;
+    }
+
+    container.innerHTML = `
+        <div class="course-card">
+            <h3>${course.name || course.id}</h3>
+            <p><b>Sigle</b>: ${course.id}</p>
+            <p><b>Crédits</b>: ${course.credits || 3}</p>
+            <p><b>Professeur(s)</b>: ${professorText}</p>
+            <p><b>Prérequis</b>: ${prereqs}</p>
+            ${eligibilityHTML}
+            ${academicHTML}
+            <p><b>Description</b>: ${course.description || 'Pas de description dispo'}</p>
+            ${commentsHtml}
+        </div>
+    `;
+}
+
+/**
+ * Vérifie si l’etudiant connecté est eligible à un cours donné
+ * @param {string} courseId - Sigle du cours
+ * @returns {Promise<Object|null>} Resultat d’eligibilité ou null
+ * git
+ */
 async function checkEligibility(courseId) {
     console.log("checkEligibility appelé avec:", courseId, "matricule:", matricule);
 
@@ -294,7 +423,6 @@ async function checkEligibility(courseId) {
         return null;
     }
 }
-
 
 
 /**
