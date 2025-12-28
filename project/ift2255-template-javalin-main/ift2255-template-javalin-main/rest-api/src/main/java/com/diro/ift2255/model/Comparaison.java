@@ -1,4 +1,5 @@
 package com.diro.ift2255.model;
+import java.io.*;
 
 
 import com.diro.ift2255.service.AvisService;////
@@ -53,6 +54,28 @@ public class Comparaison {
         return (p == null) ? Collections.emptyList() : p;
     }
 
+private Map<String, String> CalculerCSV(String courseId) {
+    Map<String, String> data = new HashMap<>();
+    data.put("score", "0");
+    data.put("moyenne", "N/A");
+
+    try (BufferedReader br = new BufferedReader(new FileReader("data/historique_cours_prog_117510.csv"))) {
+        String line;
+        br.readLine();
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts[0].equalsIgnoreCase(courseId)) {
+                data.put("moyenne", parts[2]);
+                data.put("score", parts[3]);
+                break;
+            }
+        }
+    } catch (Exception e) {}
+    return data;
+}
+
+    ///////
+
     public int compareCredits() {
         return (int) Math.abs(safeCredits(courseA) - safeCredits(courseB));
     }
@@ -84,24 +107,41 @@ public class Comparaison {
         return result;
     }
 
-        public ComparaisonResult buildResult() {
+    public ComparaisonResult buildResult() {
 
-            ComparaisonResult result = new ComparaisonResult();
-            result.setCreditDifference(compareCredits());
+        ComparaisonResult result = new ComparaisonResult();
+        result.setCreditDifference(compareCredits());
 
-            double ratingA = safeAverageReviewScore(courseA);
-            double ratingB = safeAverageReviewScore(courseB);
+        double ratingA = safeAverageReviewScore(courseA);
+        double ratingB = safeAverageReviewScore(courseB);
 
-            result.setAvgRatingA(ratingA);
-            result.setAvgRatingB(ratingB);
+        Map<String, String> csvA = CalculerCSV(courseA.getId());
+        Map<String, String> csvB = CalculerCSV(courseB.getId());
 
-            result.setReviewScoreDifference(Math.abs(ratingA - ratingB));
+        result.setAvgRatingA(ratingA);
+        result.setAvgRatingB(ratingB);
+        result.setReviewScoreDifference(Math.abs(ratingA - ratingB));
+        result.setCommonSessions(getCommonSessions());
 
-            result.setCommonSessions(getCommonSessions());
 
-            Map<String, List<String>> prereqs = getMissingPrerequisites();
-                result.setMissingPrerequisitesForA(prereqs.get(courseA.getId()));
-                result.setMissingPrerequisitesForB(prereqs.get(courseB.getId()));
-            return result;
-    }
+
+        Map<String, List<String>> prereqs = getMissingPrerequisites();
+        result.setMissingPrerequisitesForA(prereqs.get(courseA.getId()));
+        result.setMissingPrerequisitesForB(prereqs.get(courseB.getId()));
+        result.setScoreAcademiqueA(Double.parseDouble(csvA.get("score")));
+        result.setScoreAcademiqueB(Double.parseDouble(csvB.get("score")));
+
+        Map<String, Object> statsA = avisService.getStats(courseA.getId());
+        Map<String, Object> statsB = avisService.getStats(courseB.getId());
+
+        double chargeA = ((Number) statsA.getOrDefault("avg_charge", 0)).doubleValue();
+        double chargeB = ((Number) statsB.getOrDefault("avg_charge", 0)).doubleValue();
+        result.setAvgChargeA(chargeA);
+        result.setAvgChargeB(chargeB);
+
+        result.setMoyenneA(csvA.get("moyenne"));
+        result.setMoyenneB(csvB.get("moyenne"));
+
+        return result;
+}
 }

@@ -182,26 +182,37 @@
         function displayComparison(result, courseA, courseB) {
             const container = document.getElementById('compare-result');
 
-            let best_cour = '';
+
+            let meilleurenoteAvis = 'égalité';
             if (result.avgRatingA > result.avgRatingB) {
-                best_cour = `${courseA} >  ${courseB}`;
+                meilleurenoteAvis = courseA;
             } else if (result.avgRatingB > result.avgRatingA) {
-                best_cour = `${courseB} >  ${courseA}`;
-            } else {
-                best_cour = 'Les deux cours ont la mm note';
+                meilleurenoteAvis = courseB;
+            }
+
+
+            let scoreFacile = 'Égalité';
+            if (result.scoreAcademiqueA > result.scoreAcademiqueB) {
+                scoreFacile = courseA;
+            } else if (result.scoreAcademiqueB > result.scoreAcademiqueA) {
+                scoreFacile = courseB;
             }
 
             container.innerHTML = `
                 <div class="course-card">
+
                     <h3>Comparaison: ${courseA} vs ${courseB}</h3>
-
-                    <p><b>Note moyenne ${courseA}:</b> ${result.avgRatingA}/5</p>
-                    <p><b>Note moyenne ${courseB}:</b> ${result.avgRatingB}/5</p>
-                    <p><b>Différence de notes:</b> ${result.reviewScoreDifference}</p>
-
+                    <br>
+                    <p><b>Note moyenne (avis) ${courseA}:</b> ${result.avgRatingA}/5</p>
+                    <p><b>Note moyenne (avis) ${courseB}:</b> ${result.avgRatingB}/5</p>
+                    <br>
+                    <p><b>Score académique ${courseA}:</b> ${result.scoreAcademiqueA}</p>
+                    <p><b>Score académique ${courseB}:</b> ${result.scoreAcademiqueB}</p>
+                    <br>
                     <p><b>Différence de crédits:</b> ${result.creditDifference}</p>
-
-                    <p><b>${best_cour}</b></p>
+                    <br>
+                    <p><b>Mieux noté (avis):</b> ${meilleurenoteAvis}</p>
+                    <p><b>Plus facile (résultats):</b> ${scoreFacile}</p>
                 </div>
             `;
         }

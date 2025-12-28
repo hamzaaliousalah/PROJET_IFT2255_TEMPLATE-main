@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper; //aussi, on recupere du json
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.io.*;
 
 
 ///
@@ -34,7 +35,7 @@ public class AvisService {
         }
 
         return avisFiltred;
-    }
+  }
 
 
     public Map<String, Object> getStats(String courseId) {
@@ -47,6 +48,7 @@ public class AvisService {
           stats_NULL.put("avg_rating", 0);
           stats_NULL.put("avg_difficulty", 0);
           stats_NULL.put("avg_charge", 0);
+          stats_NULL.put("score_academique", CalculerCSV(courseId));
           return stats_NULL;
       }
 
@@ -84,6 +86,7 @@ public class AvisService {
         stats.put("avg_rating", moyenneRatingDEC);
         stats.put("avg_difficulty", moyenneDifficultyDEC);
         stats.put("avg_charge", moyenneChargeDEC);
+        stats.put("score_academique", CalculerCSV(courseId));
 
         return stats;
     }
@@ -98,28 +101,7 @@ public class AvisService {
 
         return resultat;
     }
-/////////////
 
-//
-//
-/*
-  private String[] getSentiment(String text) {
-    try {
-        HttpClientApi client = new HttpClientApi();
-        String url = "http://localhost:5050/sentiment?text=" + text;
-        var response = client.get(java.net.URI.create(url));
-
-        Map<String, Object> result = mapper.readValue(response.getBody(), Map.class);
-
-        String sentiment = (String) result.get("sentiment");
-        String score = result.get("score").toString();
-
-        return new String[]{sentiment, score};
-    } catch (Exception e) {
-        return new String[]{"neutre", "0"};
-    }
-}
-*///////////
 
     public Map<String, Object> create(Map<String, Object> avis) {
         List<Map<String, Object>> allavis = readFile();
@@ -155,5 +137,19 @@ public class AvisService {
       } catch (IOException e) {
           e.printStackTrace();
       }
+    }
+
+    private double CalculerCSV(String courseId) { //c'est la mm fct que pour les comparaisons de cours
+        try (BufferedReader br = new BufferedReader(new FileReader("data/historique_cours_prog_117510.csv"))) {
+            String line;
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equalsIgnoreCase(courseId)) {
+                    return Double.parseDouble(parts[3]);
+                }
+            }
+        } catch (Exception e) {}
+        return 0.0;
     }
 }

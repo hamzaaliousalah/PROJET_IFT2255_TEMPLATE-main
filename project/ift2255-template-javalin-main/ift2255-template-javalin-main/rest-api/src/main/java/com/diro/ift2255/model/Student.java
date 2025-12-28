@@ -1,4 +1,6 @@
 package com.diro.ift2255.model;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 import java.util.List;
 
@@ -30,7 +32,7 @@ public class Student {
     public String getName() {
         return name;
     }
-    q
+
     public void setName(String name) {
         this.name = name;
     }

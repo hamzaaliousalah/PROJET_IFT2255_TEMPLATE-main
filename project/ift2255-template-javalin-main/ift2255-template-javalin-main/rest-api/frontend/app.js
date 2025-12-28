@@ -505,17 +505,18 @@
      * @param {string} courseId - le ID du cours en question
      */
     function displayAvisStats(stats, courseId) {
-    const container = document.getElementById('avis-list');
+        const container = document.getElementById('avis-list');
 
-    container.innerHTML = `
-        <div class="course-card">
-            <h3>Stats pour ${courseId.toUpperCase()}</h3>
-            <p><b>Nombre d'avis:</b> ${stats.count}</p>
-            <p><b>Note moyenne:</b> ${stats.avg_rating}/5</p>
-            <p><b>Difficulté moyenne:</b> ${stats.avg_difficulty}/5</p>
-            <p><b>Charge moyenne:</b> ${stats.avg_charge}/5</p>
-        </div>
-    `;
+        container.innerHTML = `
+            <div class="course-card">
+                <h3>Stats pour ${courseId.toUpperCase()}</h3>
+                <p><b>Nombre d'avis:</b> ${stats.count}</p>
+                <p><b>Note moyenne:</b> ${stats.avg_rating}/5</p>
+                <p><b>Difficulté moyenne (avis):</b> ${stats.avg_difficulty}/5</p>
+                <p><b>Charge moyenne:</b> ${stats.avg_charge}/5</p>
+                <p><b>Score académique:</b> ${stats.score_academique || 'N/A'}</p>
+            </div>
+        `;
     }
 
     //form pr les avis
