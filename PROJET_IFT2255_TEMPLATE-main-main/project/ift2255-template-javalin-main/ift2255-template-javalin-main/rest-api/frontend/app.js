@@ -599,6 +599,7 @@ function displayProgramCourses(courses) {
     });
 }
 
+
     window.addEventListener('load', () => {
     //loadUsers();
     loadCSV();

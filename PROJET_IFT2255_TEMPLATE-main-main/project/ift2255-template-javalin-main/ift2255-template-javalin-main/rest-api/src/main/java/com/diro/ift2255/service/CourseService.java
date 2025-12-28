@@ -105,11 +105,9 @@ public class CourseService {
                     Course course = new Course();
 
                     course.setId((String) c.get("id")); 
-
                     course.setName((String) c.get("name"));
                     course.setDescription((String) c.get("description"));
                     course.setPrerequisites((List<String>) c.getOrDefault("prerequisites", List.of()));
-
                     courses.add(course);
                 }
                 return courses;
@@ -117,9 +115,6 @@ public class CourseService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return List.of();
     }
-
-
 }
