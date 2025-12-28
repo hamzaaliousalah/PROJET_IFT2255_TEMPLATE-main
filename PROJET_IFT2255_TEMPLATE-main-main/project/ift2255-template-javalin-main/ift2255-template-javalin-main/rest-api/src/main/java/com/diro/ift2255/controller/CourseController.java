@@ -200,5 +200,4 @@ public class CourseController {
             ctx.json(courses);
         }
     }
-    
 }

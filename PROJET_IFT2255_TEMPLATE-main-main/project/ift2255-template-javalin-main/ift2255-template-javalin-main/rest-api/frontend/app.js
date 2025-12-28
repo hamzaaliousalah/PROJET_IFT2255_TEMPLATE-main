@@ -577,7 +577,6 @@
     } catch (error) {
         showError('program-courses-list', error.message);
     }
-    
 }
 
 function displayProgramCourses(courses) {
